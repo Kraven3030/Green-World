@@ -1,0 +1,35 @@
+// +-+-+-+-+-+-+-+-+-+-+-+-+
+// |D|E|P|E|N|D|E|N|C|I|E|S|
+// +-+-+-+-+-+-+-+-+-+-+-+-+
+const express = require('express');
+const app = express();
+require('dotenv').config();
+const PORT = process.env.PORT;
+const methodOverride = require('method-override');
+const cors = require('cors');
+const path = require('path');
+
+// +-+-+-+-+-+-+-+-+-+-+
+// |M|I|D|D|L|E|W|A|R|E|
+// +-+-+-+-+-+-+-+-+-+-+
+app.use(cors())
+// Parse the body data
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(methodOverride('_method'));
+
+
+
+// +-+-+-+-+-+-+
+// |R|O|U|T|E|S|
+// +-+-+-+-+-+-+
+
+
+
+
+// +-+-+-+-+-+-+-+-+
+// |L|I|S|T|E|N|E|R|
+// +-+-+-+-+-+-+-+-+
+app.listen(PORT, () => {
+    console.log(`listening on port: ${PORT}`)
+})
