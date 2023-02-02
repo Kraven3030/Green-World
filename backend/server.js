@@ -7,7 +7,6 @@ require('dotenv').config();
 const PORT = process.env.PORT;
 const methodOverride = require('method-override');
 const cors = require('cors');
-
 // Access to controllers
 const usersCtrl = require('./controllers/users.js')
 
