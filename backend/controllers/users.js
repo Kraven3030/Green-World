@@ -4,12 +4,33 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const passport = require('../config/passport');
+const passport = require('passport');
 const config = require('../config/config')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const db = require("../models");
 const User = db.User;
+
+
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+
+const opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = config.jwtSecret;
+
+passport.use(
+    new JwtStrategy(opts, (jwt_payload, done) => {
+        User.findById(jwt_payload.id)
+            .then(user => {
+                if (user) {
+                    return done(null, user);
+                }
+                return done(null, false);
+            })
+            .catch(err => console.error(err));
+    })
+);
 
 
 // Checks is required fileds on signup for have been completed and will send erros otherwise
@@ -62,7 +83,7 @@ router.post('/signup', (req, res) => {
                         if (err) throw err;
                         // Set password to hashed
                         newUser.password = hash;
-                        // Save new user
+                        // Save new user and sends message via json to inform user account has been created
                         newUser.save()
                             .then(user => {
                                 res.status(201).json({ message: 'User created successfully' })
@@ -75,38 +96,44 @@ router.post('/signup', (req, res) => {
 });
 
 
-
-
-
 //==================================
 //   LOG IN ROUTE / FIND ONE USER
 //==================================
-// router.post('/login', passport.authenticate('jwt', { session: false }), async (req, res) => {
-//     try {
-//         const user = await User.findOne({ username: req.body.username });
-//         if (!user) {
-//             return res.status(400).json({
-//                 message: 'Username is not correct',
-//             });
-//         }
+router.post('/login', passport.initialize(), passport.authenticate('jwt', { session: false }), async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.body.username });
+        if (!user) {
+            return res.status(400).json({
+                message: 'Username is not correct',
+            });
+        }
 
-//         const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
-//         if (!isPasswordValid) {
-//             return res.status(400).json({
-//                 message: 'Password is not correct',
-//             });
-//         }
+        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({
+                message: 'Password is not correct',
+            });
+        }
 
-//         const token = jwt.sign({ id: user._id }, config.jwtSecret);
-//         return res.json({ user, token });
-//     } catch (error) {
-//         res.status(500).send({ error: error.message });
-//     }
-// });
-
-
+        const token = jwt.sign({ id: user._id }, config.jwtSecret);
+        return res.json({ user, token });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
 
 
+//=======================================
+//   GET USER DATA (IF USER IS LOGGED IN)
+//=======================================
+router.get('/:id', async (req, res) => {
+    const foundUser = await User.findById(req.params.id)
+    if (foundUser) {
+        res.json(foundUser)
+    } else {
+        res.sendStatus(401)
+    }
+})
 
 
 module.exports = router

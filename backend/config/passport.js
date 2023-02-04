@@ -1,38 +1,54 @@
-const passport = require('passport')
-const passportJWT = require('passport-jwt')
-const ExtractJwt = passportJWT.ExtractJwt
-const Strategy = passportJWT.Strategy
+// const passport = require('passport')
+// const passportJWT = require('passport-jwt')
+// const ExtractJwt = passportJWT.ExtractJwt
+// const Strategy = passportJWT.Strategy
+// const config = require('./config')
+// const db = require('../models')
+// const User = db.User
 
-const config = require('./config')
+// const params = {
+//     secretOrKey: config.jwtSecret,
+//     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+// }
 
-const db = require("../models")
+// module.exports = function () {
+//     let strategy = new Strategy(params, (payload, callback) => {
+//         let user = User.findById(payload.id) || null
+//         if (user) {
+//             return callback(null, { id: user.id })
+//         } else {
+//             return callback(new Error('User not found'), null)
+//         }
+//     })
 
-const params = {
-    secretOrKey: config.jwtSecret,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
-}
+//     passport.use(strategy)
 
-module.exports = function () {
-    let strategy = new Strategy(params, (payload, callback) => {
-        console.log(payload)
-        let user = db.User.findById(payload.id) || null
-        if (user) {
-            return callback(null, { id: user.id })
-        } else {
-            return callback(new Error('User not found'), null)
-        }
+//     return {
+//         initialize: function () {
+//             return passport.initialize()
+//         },
+//         authenticate: function () {
+//             return passport.authenticate('jwt', { session: false })
+//         }
+//     }
+// }
+
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+
+const opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = config.jwtSecret;
+
+passport.use(
+    new JwtStrategy(opts, (jwt_payload, done) => {
+        User.findById(jwt_payload.id)
+            .then(user => {
+                if (user) {
+                    return done(null, user);
+                }
+                return done(null, false);
+            })
+            .catch(err => console.error(err));
     })
-
-    passport.use(strategy)
-
-    return {
-        initialize: function () {
-            return passport.initialize()
-        },
-        authenticate: function () {
-            return passport.authenticate('jwt', { session: false })
-        }
-    }
-}
-
-
+);
