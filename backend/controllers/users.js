@@ -33,6 +33,7 @@ passport.use(
 );
 
 
+
 // Checks is required fileds on signup for have been completed and will send erros otherwise
 const validateSignUpInput = (username, email, password, password2) => {
     let errors = [];
@@ -75,7 +76,8 @@ router.post('/signup', (req, res) => {
                 const newUser = new User({
                     username: username,
                     email: email,
-                    password: password
+                    password: password,
+                    password: password2
                 });
                 // Uses bcrypt to hash the password
                 bcrypt.genSalt(saltRounds, (err, salt) => {
