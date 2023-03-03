@@ -34,18 +34,18 @@ passport.use(
 
 
 
-// Checks is required fileds on signup for have been completed and will send erros otherwise
+// Checks if required fields on signup have been completed and will send errors otherwise
 const validateSignUpInput = (username, email, password, password2) => {
     let errors = [];
     // Check required fields
     if (!username || !email || !password || !password2) {
         errors.push({ msg: 'Please fill in all fields' });
     }
-    // Check if password is correct
+    // Checks if password is correct
     if (password !== password2) {
         errors.push({ msg: 'Passwords do not match' })
     }
-    // Check password length is < 6
+    // Checks password length is < 6
     if (password.length < 6) {
         errors.push({ msg: 'Password must be at least 6 characters' })
     }
@@ -101,29 +101,35 @@ router.post('/signup', (req, res) => {
 //==================================
 //   LOG IN ROUTE / FIND ONE USER
 //==================================
-router.post('/login', passport.initialize(), passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.body.username });
-        if (!user) {
-            return res.status(400).json({
-                message: 'Username is not correct',
-            });
-        }
+router.post('/login', (req, res) => {
+    const { username, password } = req.body;
 
-        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({
-                message: 'Password is not correct',
-            });
-        }
+    // Find the user in the database
+    User.findOne({ username })
+        .then(user => {
+            if (!user) {
+                // If user is not found, return an error
+                return res.status(401).json({ message: 'Invalid username or password' });
+            }
 
-        const token = jwt.sign({ id: user._id }, config.jwtSecret);
-        return res.json({ user, token });
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
+            // Check if the password matches
+            bcrypt.compare(password, user.password)
+                .then(isMatch => {
+                    if (!isMatch) {
+                        // If the password doesn't match, return an error
+                        return res.status(401).json({ message: 'Invalid username or password' });
+                    }
+
+                    // Create a JWT token for the user
+                    const payload = { id: user.id, username: user.username };
+                    jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' }, (err, token) => {
+                        if (err) throw err;
+                        // Return the token as a response
+                        res.json({ token });
+                    });
+                });
+        });
 });
-
 
 //=======================================
 //   GET USER DATA (IF USER IS LOGGED IN)
