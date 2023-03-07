@@ -56,7 +56,7 @@ router.post('/signup', (req, res) => {
                     username: username,
                     email: email,
                     password: password,
-                    password: password2
+                    password2: password2
                 });
                 // Uses bcrypt to hash the password
                 bcrypt.genSalt(saltRounds, (err, salt) => {
@@ -107,9 +107,18 @@ router.post('/login', (req, res) => {
                             userId: user.id
                         });
                     });
+                })
+                .catch(err => {
+                    console.error(err);
+                    res.status(500).json({ message: 'Server error' });
                 });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ message: 'Server error' });
         });
 });
+
 
 //=======================================
 //   GET USER DATA (IF USER IS LOGGED IN)

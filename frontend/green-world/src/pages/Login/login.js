@@ -25,9 +25,9 @@ function Login(props) {
     })
 
     // Keeps track of what is submitted into the form
-    // const handleChange = (event) => {
-    //     setLoginForm({ ...loginForm, [event.target.name]: event.target.value })
-    // }
+    const handleChange = (event) => {
+        setLoginForm({ ...loginForm, [event.target.name]: event.target.value })
+    }
 
     const handleSubmit = async (event, loginForm) => {
         event.preventDefault();
@@ -37,6 +37,7 @@ function Login(props) {
                     localStorage.token = data.token;
                     localStorage.username = data.username;
                     localStorage.userId = data.userId;
+                    props.setIsLoggedIn(true)
                     setLoginForm({
                         username: '',
                         password: ''
@@ -92,6 +93,7 @@ function Login(props) {
                                 name="username"
                                 autoComplete="username"
                                 autoFocus
+                                onChange={handleChange}
                             />
                             <TextField
                                 margin="normal"
@@ -102,6 +104,7 @@ function Login(props) {
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
+                                onChange={handleChange}
                             />
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}
@@ -115,12 +118,7 @@ function Login(props) {
                             >
                                 Login
                             </Button>
-                            <Grid container>
-                                <Grid item xs>
-                                    <Link href="#" variant="body2">
-                                        Forgot password?
-                                    </Link>
-                                </Grid>
+                            <Grid container justifyContent="center">
                                 <Grid item>
                                     <Link href="/signup" variant="body2">
                                         {"Don't have an account? Sign Up"}

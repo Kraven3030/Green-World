@@ -5,8 +5,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -28,6 +26,11 @@ function Signup(props) {
         password2: ''
     })
 
+    // Will keep track of what's inputted into the form
+    const handleChange = (event) => {
+        setSignupForm({ ...signupForm, [event.target.name]: event.target.value })
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         createUser(signupForm)
@@ -36,6 +39,7 @@ function Signup(props) {
                 localStorage.username = data.username;
                 localStorage.userId = data.userId
             })
+        props.setIsLoggedIn(true)
         setSignupForm({
             firstName: '',
             lastName: '',
@@ -77,6 +81,7 @@ function Signup(props) {
                                     id="firstName"
                                     label="First Name"
                                     autoFocus
+                                    onChange={handleChange}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -87,6 +92,7 @@ function Signup(props) {
                                     label="Last Name"
                                     name="lastName"
                                     autoComplete="family-name"
+                                    onChange={handleChange}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -99,6 +105,7 @@ function Signup(props) {
                                     name="username"
                                     autoComplete="username"
                                     autoFocus
+                                    onChange={handleChange}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -109,6 +116,7 @@ function Signup(props) {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
+                                    onChange={handleChange}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -120,6 +128,7 @@ function Signup(props) {
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
+                                    onChange={handleChange}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -131,6 +140,7 @@ function Signup(props) {
                                     type="password"
                                     id="password2"
                                     autoComplete="new-password"
+                                    onChange={handleChange}
                                 />
                             </Grid>
                         </Grid>
