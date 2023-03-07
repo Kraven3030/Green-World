@@ -12,33 +12,11 @@ const db = require("../models");
 const User = db.User;
 
 
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-
-const opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = config.jwtSecret;
-
-passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) => {
-        User.findById(jwt_payload.id)
-            .then(user => {
-                if (user) {
-                    return done(null, user);
-                }
-                return done(null, false);
-            })
-            .catch(err => console.error(err));
-    })
-);
-
-
-
 // Checks if required fields on signup have been completed and will send errors otherwise
-const validateSignUpInput = (username, email, password, password2) => {
+const validateSignUpInput = (firstName, lastName, username, email, password, password2) => {
     let errors = [];
     // Check required fields
-    if (!username || !email || !password || !password2) {
+    if (!firstName || !lastName || !username || !email || !password || !password2) {
         errors.push({ msg: 'Please fill in all fields' });
     }
     // Checks if password is correct
@@ -59,9 +37,8 @@ const validateSignUpInput = (username, email, password, password2) => {
 //   SIGN UP ROUTE / CREATE USER
 //=================================
 router.post('/signup', (req, res) => {
-    const { username, email, password, password2 } = req.body;
-    const { errors, isValid } = validateSignUpInput(username, email, password, password2);
-
+    const { firstName, lastName, username, email, password, password2 } = req.body;
+    const { errors, isValid } = validateSignUpInput(firstName, lastName, username, email, password, password2);
     if (!isValid) {
         return res.status(400).json(errors);
     }
@@ -74,6 +51,8 @@ router.post('/signup', (req, res) => {
                 return res.status(400).json(errors);
             } else {
                 const newUser = new User({
+                    firstName: firstName,
+                    lastName: lastName,
                     username: username,
                     email: email,
                     password: password,
@@ -103,7 +82,6 @@ router.post('/signup', (req, res) => {
 //==================================
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-
     // Find the user in the database
     User.findOne({ username })
         .then(user => {
@@ -111,7 +89,6 @@ router.post('/login', (req, res) => {
                 // If user is not found, return an error
                 return res.status(401).json({ message: 'Invalid username or password' });
             }
-
             // Check if the password matches
             bcrypt.compare(password, user.password)
                 .then(isMatch => {
@@ -119,13 +96,16 @@ router.post('/login', (req, res) => {
                         // If the password doesn't match, return an error
                         return res.status(401).json({ message: 'Invalid username or password' });
                     }
-
                     // Create a JWT token for the user
                     const payload = { id: user.id, username: user.username };
                     jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' }, (err, token) => {
                         if (err) throw err;
                         // Return the token as a response
-                        res.json({ token });
+                        res.json({
+                            token: token,
+                            username: user.username,
+                            userId: user.id
+                        });
                     });
                 });
         });
