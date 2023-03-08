@@ -39,7 +39,7 @@ function Signup(props) {
                 localStorage.username = data.username;
                 localStorage.userId = data.userId
             })
-        props.setIsLoggedIn(true)
+        // props.setIsLoggedIn(true)
         setSignupForm({
             firstName: '',
             lastName: '',

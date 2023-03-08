@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userLogin } from '../../utils/api'
+
+// Material UI components
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,8 +30,8 @@ function Login(props) {
     const handleChange = (event) => {
         setLoginForm({ ...loginForm, [event.target.name]: event.target.value })
     }
-
-    const handleSubmit = async (event, loginForm) => {
+    console.log(loginForm)
+    const handleSubmit = async (event) => {
         event.preventDefault();
         userLogin(loginForm)
             .then((data) => {
@@ -37,7 +39,7 @@ function Login(props) {
                     localStorage.token = data.token;
                     localStorage.username = data.username;
                     localStorage.userId = data.userId;
-                    props.setIsLoggedIn(true)
+                    // props.setIsLoggedIn(true)
                     setLoginForm({
                         username: '',
                         password: ''
@@ -46,6 +48,9 @@ function Login(props) {
                 } else {
                     window.alert('Login error! Username or Password incorrect!')
                 }
+            })
+            .catch((error) => {
+                console.error('Error occurred while logging in:', error)
             })
     }
 
@@ -59,7 +64,7 @@ function Login(props) {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1771&q=80)',
+                        backgroundImage: 'url(https://images.unsplash.com/photo-1611162242122-da5879b25e55?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80)',
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -70,7 +75,7 @@ function Login(props) {
                 <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                     <Box
                         sx={{
-                            my: 8,
+                            my: 35,
                             mx: 4,
                             display: 'flex',
                             flexDirection: 'column',
@@ -81,7 +86,7 @@ function Login(props) {
                             <LockOutlinedIcon />
                         </Avatar>
                         <Typography component="h1" variant="h5">
-                            Login
+                            Login to Green World
                         </Typography>
                         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                             <TextField
@@ -94,6 +99,7 @@ function Login(props) {
                                 autoComplete="username"
                                 autoFocus
                                 onChange={handleChange}
+                                value={loginForm.username}
                             />
                             <TextField
                                 margin="normal"
@@ -105,6 +111,7 @@ function Login(props) {
                                 id="password"
                                 autoComplete="current-password"
                                 onChange={handleChange}
+                                value={loginForm.password}
                             />
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}

@@ -43,11 +43,11 @@ router.post('/signup', (req, res) => {
         return res.status(400).json(errors);
     }
     // Checks to see if user already exists
-    User.findOne({ email: email })
+    User.findOne({ username: username, email: email })
         .then(user => {
             if (user) {
                 // If user already exists
-                errors.push({ msg: 'Email already in use' })
+                errors.push({ msg: 'Username or Email already in use' })
                 return res.status(400).json(errors);
             } else {
                 const newUser = new User({
@@ -64,6 +64,7 @@ router.post('/signup', (req, res) => {
                         if (err) throw err;
                         // Set password to hashed
                         newUser.password = hash;
+                        newUser.password2 = hash
                         // Save new user and sends message via json to inform user account has been created
                         newUser.save()
                             .then(user => {
@@ -81,43 +82,44 @@ router.post('/signup', (req, res) => {
 //   LOG IN ROUTE / FIND ONE USER
 //==================================
 router.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    // Find the user in the database
-    User.findOne({ username })
-        .then(user => {
-            if (!user) {
-                // If user is not found, return an error
-                return res.status(401).json({ message: 'Invalid username or password' });
-            }
-            // Check if the password matches
-            bcrypt.compare(password, user.password)
-                .then(isMatch => {
-                    if (!isMatch) {
-                        // If the password doesn't match, return an error
-                        return res.status(401).json({ message: 'Invalid username or password' });
-                    }
-                    // Create a JWT token for the user
-                    const payload = { id: user.id, username: user.username };
-                    jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' }, (err, token) => {
-                        if (err) throw err;
-                        // Return the token as a response
-                        res.json({
-                            token: token,
-                            username: user.username,
-                            userId: user.id
+    if (req.body.username && req.body.password) {
+        // Find the user in the database
+        User.findOne({ username: req.body.username })
+            .then(user => {
+                if (!user) {
+                    // If user is not found, return an error
+                    return res.status(401).json({ message: 'Account not found!' });
+                }
+                // Check is password matches
+                bcrypt.compare(req.body.password, user.password)
+                    .then(isMatch => {
+                        if (!isMatch) {
+                            // If the password doesn't match, return an error
+                            return res.status(401).json({ message: 'Invalid username or password' });
+                        }
+                        // Create a JWT token for the user
+                        const payload = { id: user.id, username: user.username };
+                        jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' }, (err, token) => {
+                            if (err) throw err;
+                            // Return the token as a response
+                            res.json({
+                                token: token,
+                                username: user.username,
+                                userId: user.id
+                            });
                         });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        res.status(500).json({ message: 'Server error' });
                     });
-                })
-                .catch(err => {
-                    console.error(err);
-                    res.status(500).json({ message: 'Server error' });
-                });
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ message: 'Server error' });
-        });
-});
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({ message: 'Server error' });
+            });
+    }
+})
 
 
 //=======================================
