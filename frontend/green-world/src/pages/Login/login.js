@@ -30,7 +30,7 @@ function Login(props) {
     const handleChange = (event) => {
         setLoginForm({ ...loginForm, [event.target.name]: event.target.value })
     }
-    console.log(loginForm)
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         userLogin(loginForm)
@@ -64,7 +64,7 @@ function Login(props) {
                     sm={4}
                     md={7}
                     sx={{
-                        backgroundImage: 'url(https://images.unsplash.com/photo-1611162242122-da5879b25e55?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80)',
+                        backgroundImage: 'url(https://images.unsplash.com/photo-1421789665209-c9b2a435e3dc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1771&q=80)',
                         backgroundRepeat: 'no-repeat',
                         backgroundColor: (t) =>
                             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -86,7 +86,7 @@ function Login(props) {
                             <LockOutlinedIcon />
                         </Avatar>
                         <Typography component="h1" variant="h5">
-                            Login to Green World
+                            Welcome to <strong>Green World</strong>. Please login
                         </Typography>
                         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
                             <TextField

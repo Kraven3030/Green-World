@@ -36,11 +36,14 @@ const validateSignUpInput = (firstName, lastName, username, email, password, pas
 //=================================
 //   SIGN UP ROUTE / CREATE USER
 //=================================
+//=================================
+//   SIGN UP ROUTE / CREATE USER
+//=================================
 router.post('/signup', (req, res) => {
     const { firstName, lastName, username, email, password, password2 } = req.body;
     const { errors, isValid } = validateSignUpInput(firstName, lastName, username, email, password, password2);
     if (!isValid) {
-        return res.status(400).json(errors);
+        return res.status(400).json({ errors });
     }
     // Checks to see if user already exists
     User.findOne({ username: username, email: email })
@@ -48,7 +51,7 @@ router.post('/signup', (req, res) => {
             if (user) {
                 // If user already exists
                 errors.push({ msg: 'Username or Email already in use' })
-                return res.status(400).json(errors);
+                return res.status(400).json({ errors });
             } else {
                 const newUser = new User({
                     firstName: firstName,
@@ -76,6 +79,7 @@ router.post('/signup', (req, res) => {
             }
         });
 });
+
 
 
 //==================================

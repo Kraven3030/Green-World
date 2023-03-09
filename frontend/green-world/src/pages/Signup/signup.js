@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { createUser } from '../../utils/api'
 import { useNavigate } from 'react-router-dom';
+
+// Material UI components
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -33,13 +35,35 @@ function Signup(props) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        // Check if any required field is empty
+        if (!signupForm.firstName || !signupForm.lastName || !signupForm.username || !signupForm.email || !signupForm.password || !signupForm.password2) {
+            // Set an error message or highlight the field to notify the user
+            alert('Please fill out all required fields.');
+            return;
+        }
+
+        // Check if the passwords match
+        if (signupForm.password !== signupForm.password2) {
+            // Set an error message or highlight the field to notify the user
+            alert('Passwords do not match.');
+            return;
+        }
+
+        // Check if the password is at least 6 characters long
+        if (signupForm.password.length < 6) {
+            // Set an error message or highlight the field to notify the user
+            alert('Password must be at least 6 characters long.');
+            return;
+        }
+
         createUser(signupForm)
             .then((data) => {
                 localStorage.token = data.token;
                 localStorage.username = data.username;
                 localStorage.userId = data.userId
             })
-        // props.setIsLoggedIn(true)
+
         setSignupForm({
             firstName: '',
             lastName: '',
@@ -48,8 +72,11 @@ function Signup(props) {
             password: '',
             password2: ''
         })
+
         navigate('/', { replace: true })
     }
+
+
 
 
     return (
@@ -58,7 +85,7 @@ function Signup(props) {
                 <CssBaseline />
                 <Box
                     sx={{
-                        marginTop: 8,
+                        marginTop: 20,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
